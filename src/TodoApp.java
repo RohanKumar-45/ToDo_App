@@ -61,9 +61,7 @@ public class TodoApp {
                     updateStatus(statusId);
                     break;
                 case 7:
-                    System.out.print("Status (PENDING / IN_PROGRESS / COMPLETED): ");
-                    String updateStatus = sc.nextLine().toUpperCase();
-                    Status status = Status.valueOf(updateStatus);
+                    Status status = readStatus();
                     getTodoByStatus(status);
                     break;
                 case 8:
@@ -152,8 +150,20 @@ public class TodoApp {
         System.out.print("New Description: ");
         task.setDescription(sc.nextLine());
 
-        System.out.print("Status (PENDING / IN_PROGRESS / COMPLETED): ");
-        task.setStatus(Status.valueOf(sc.nextLine().toUpperCase()));
+        task.setStatus(readStatus());
+    }
+
+    public Status readStatus() {
+        while(true){
+            System.out.print("Status (PENDING / IN_PROGRESS / COMPLETED): ");
+            String input = sc.nextLine().toUpperCase();
+
+            try{
+                return Status.valueOf(input);
+            } catch (IllegalArgumentException e) {
+                System.out.println("Invalid Status input.");
+            }
+        }
     }
 
     public void deleteTodo(int delId) {
@@ -172,7 +182,6 @@ public class TodoApp {
             System.out.println("Task not found");
             return;
         }
-        System.out.print("Status (PENDING / IN_PROGRESS / COMPLETED): ");
-        task.setStatus(Status.valueOf(sc.nextLine().toUpperCase()));
+        task.setStatus(readStatus());
     }
 }
