@@ -65,7 +65,8 @@ public class TodoApp {
                     break;
                 case 7:
                     System.out.print("Status (PENDING / IN_PROGRESS / COMPLETED): ");
-                    String status = sc.nextLine().toUpperCase();
+                    String updateStatus = sc.nextLine().toUpperCase();
+                    Status status = Status.valueOf(updateStatus);
                     getTodoByStatus(status);
                     break;
                 case 8:
@@ -85,7 +86,7 @@ public class TodoApp {
     public void getTodoByTitle(String title) {
         boolean found = false;
         for(TodoItem task : tasks){
-            if(task.getStatus().equals(title)){
+            if(task.getTitle().equals(title)){
                 found = true;
                 displayTask(task);
             }
@@ -95,7 +96,7 @@ public class TodoApp {
         }
     }
 
-    public void getTodoByStatus(String status) {
+    public void getTodoByStatus(Status status) {
         boolean found = false;
         for(TodoItem task : tasks){
             if(task.getStatus().equals(status)){
@@ -113,7 +114,10 @@ public class TodoApp {
             System.out.println("Task not found");
             return;
         }
-        displayTask(task);
+        System.out.println("ID: " + task.getId() +
+                " Title: " + task.getTitle() +
+                " Description: " + task.getDescription() +
+                " Status: " + task.getStatus());
     }
 
     public void createTodo(){
@@ -123,7 +127,7 @@ public class TodoApp {
         System.out.print("Description:");
         String description = sc.nextLine();
 
-        TodoItem todo = new TodoItem(id++ , title , description , "PENDING");
+        TodoItem todo = new TodoItem(id++ , title , description , Status.PENDING);
         tasks.add(todo);
 
         System.out.println("Todo Created");
@@ -153,7 +157,9 @@ public class TodoApp {
         task.setDescription(sc.nextLine());
 
         System.out.print("Status (PENDING / IN_PROGRESS / COMPLETED): ");
-        task.setStatus(sc.nextLine().toUpperCase());
+        String updateStatus = sc.nextLine().toUpperCase();
+        Status status = Status.valueOf(updateStatus);
+        task.setStatus(status);
     }
 
     public void deleteTodo(int delId) {
@@ -184,6 +190,8 @@ public class TodoApp {
         }
 
         System.out.print("Status (PENDING / IN_PROGRESS / COMPLETED): ");
-        task.setStatus(sc.nextLine().toUpperCase());
+        String updateStatus = sc.nextLine().toUpperCase();
+        Status status = Status.valueOf(updateStatus);
+        task.setStatus(status);
     }
 }

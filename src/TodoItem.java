@@ -1,13 +1,17 @@
-
+enum Status{
+    PENDING ,
+    IN_PROGRESS ,
+    COMPLETED
+}
 
 public class TodoItem {
 
     private int id;
     private String title;
     private String description;
-    private String status;
+    private Status status;
 
-    public TodoItem(int id,String title,String description,String status){
+    public TodoItem(int id,String title,String description,Status status){
         this.id = id;
         this.title = title;
         this.description = description;
@@ -26,7 +30,7 @@ public class TodoItem {
         return description;
     }
 
-    public String getStatus(){
+    public Status getStatus(){
         return status;
     }
 
@@ -38,7 +42,7 @@ public class TodoItem {
         this.description = description;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(Status status) {
         this.status = status;
     }
 }
