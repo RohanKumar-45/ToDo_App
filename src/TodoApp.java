@@ -4,7 +4,7 @@ import java.util.*;
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class TodoApp {
 
-    private Set<TodoItem> tasks = new HashSet<>();
+    private Map<Integer,TodoItem> tasks = new HashMap<>();
     private int id = 1;
     private Scanner sc = new Scanner(System.in);
 
@@ -40,7 +40,7 @@ public class TodoApp {
                 case 3:
                     System.out.print("Enter Task ID: ");
                     int taskId =  sc.nextInt();
-                    TodoItem task = findTaskById(taskId);
+                    TodoItem task = tasks.get(taskId);
                     displayTask(task);
                     break;
                 case 4:
@@ -68,7 +68,7 @@ public class TodoApp {
                     break;
                 case 8:
                     System.out.print("Title: ");
-                    String title = sc.nextLine().toUpperCase();
+                    String title = sc.nextLine();
                     getTodoByTitle(title);
                     break;
                 case 9:
@@ -82,8 +82,8 @@ public class TodoApp {
 
     public void getTodoByTitle(String title) {
         boolean found = false;
-        for(TodoItem task : tasks){
-            if(task.getTitle().equals(title)){
+        for(TodoItem task : tasks.values()){
+            if(task.getTitle().equalsIgnoreCase(title)){
                 found = true;
                 displayTask(task);
             }
@@ -95,7 +95,7 @@ public class TodoApp {
 
     public void getTodoByStatus(Status status) {
         boolean found = false;
-        for(TodoItem task : tasks){
+        for(TodoItem task : tasks.values()){
             if(task.getStatus().equals(status)){
                 found = true;
                 displayTask(task);
@@ -124,11 +124,9 @@ public class TodoApp {
         System.out.print("Description:");
         String description = sc.nextLine();
 
-        if(tasks.add(new TodoItem(id++ , title , description , Status.PENDING))) {
-            System.out.println("Todo Created");
-        }else{
-            System.out.println("Element with id already exists.");
-        }
+        TodoItem task = new TodoItem(id++,title,description,Status.PENDING);
+        tasks.put(task.getId(),task);
+        System.out.println("Todo Created");
     }
 
     public void getTodos(){
@@ -136,13 +134,13 @@ public class TodoApp {
             System.out.println("No Tasks found");
             return;
         }
-        for(TodoItem task : tasks){
+        for(TodoItem task : tasks.values()){
             displayTask(task);
         }
     }
 
-    public void updateTodo(int statusId){
-        TodoItem task = findTaskById(statusId);
+    public void updateTodo(int taskId){
+        TodoItem task = tasks.get(taskId);
         if(task == null){
             System.out.println("Task not found");
             return;
@@ -155,38 +153,26 @@ public class TodoApp {
         task.setDescription(sc.nextLine());
 
         System.out.print("Status (PENDING / IN_PROGRESS / COMPLETED): ");
-        String updateStatus = sc.nextLine().toUpperCase();
-        Status status = Status.valueOf(updateStatus);
-        task.setStatus(status);
+        task.setStatus(Status.valueOf(sc.nextLine().toUpperCase()));
     }
 
     public void deleteTodo(int delId) {
-        if(tasks.remove(new TodoItem(delId , "","",Status.PENDING))){
-            System.out.println("Task Deleted.");
-        }else{
-            System.out.println("Task Not found");
-        }
-    }
-
-    public TodoItem findTaskById(int taskId) {
-        for(TodoItem task : tasks){
-            if(task.getId() == taskId){
-                return task;
-            }
-        }
-        return null;
-    }
-
-    public void updateStatus(int statusId) {
-        TodoItem task = findTaskById(statusId);
+        TodoItem task = tasks.get(delId);
         if(task == null){
             System.out.println("Task not found");
             return;
         }
+        tasks.remove(delId);
+        System.out.println("Task deleted successfully");
+    }
 
+    public void updateStatus(int statusId) {
+        TodoItem task = tasks.get(statusId);
+        if(task == null){
+            System.out.println("Task not found");
+            return;
+        }
         System.out.print("Status (PENDING / IN_PROGRESS / COMPLETED): ");
-        String updateStatus = sc.nextLine().toUpperCase();
-        Status status = Status.valueOf(updateStatus);
-        task.setStatus(status);
+        task.setStatus(Status.valueOf(sc.nextLine().toUpperCase()));
     }
 }
