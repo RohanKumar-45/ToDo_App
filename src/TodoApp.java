@@ -1,13 +1,10 @@
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class TodoApp {
 
-    private List<TodoItem> tasks = new ArrayList<>();
+    private Set<TodoItem> tasks = new HashSet<>();
     private int id = 1;
     private Scanner sc = new Scanner(System.in);
 
@@ -127,10 +124,11 @@ public class TodoApp {
         System.out.print("Description:");
         String description = sc.nextLine();
 
-        TodoItem todo = new TodoItem(id++ , title , description , Status.PENDING);
-        tasks.add(todo);
-
-        System.out.println("Todo Created");
+        if(tasks.add(new TodoItem(id++ , title , description , Status.PENDING))) {
+            System.out.println("Todo Created");
+        }else{
+            System.out.println("Element with id already exists.");
+        }
     }
 
     public void getTodos(){
@@ -163,14 +161,11 @@ public class TodoApp {
     }
 
     public void deleteTodo(int delId) {
-        TodoItem task = findTaskById(delId);
-        if(task == null){
-            System.out.println("Task not found");
-            return;
+        if(tasks.remove(new TodoItem(delId , "","",Status.PENDING))){
+            System.out.println("Task Deleted.");
+        }else{
+            System.out.println("Task Not found");
         }
-
-        tasks.remove(task);
-        System.out.println("Task Deleted.");
     }
 
     public TodoItem findTaskById(int taskId) {

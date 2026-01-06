@@ -17,6 +17,21 @@ public class TodoItem {
         this.description = description;
         this.status = status;
     }
+    @Override
+    public boolean equals(Object o){
+        if(this == o){
+            return true;
+        }
+        if(!(o instanceof TodoItem item)){
+            return false;
+        }
+        return id == item.id;
+    }
+
+    @Override
+    public int hashCode(){
+        return id;
+    }
 
     public int getId(){
         return id;
