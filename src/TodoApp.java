@@ -1,12 +1,33 @@
-import java.util.*;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
+import java.util.Iterator;
+import java.util.Scanner;
 
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class TodoApp {
 
-    private Map<Integer,TodoItem> tasks = new HashMap<>();
-    private int id = 1;
+    private long id;
     private Scanner sc = new Scanner(System.in);
+    private JSONArray tasks = TodoUtil.readTodoArray();
+
+    public TodoApp(){
+        id = getNextId();
+    }
+
+    private long getNextId() {
+        long max = 0;
+        for(Object obj : tasks){
+            JSONObject task = (JSONObject) obj;
+            long taskId = (long) task.get("id");
+
+            if(taskId > max){
+                max = taskId;
+            }
+        }
+        return max + 1;
+    }
 
     public static void main(String[] args) {
         new TodoApp().start();
@@ -39,24 +60,24 @@ public class TodoApp {
                     break;
                 case 3:
                     System.out.print("Enter Task ID: ");
-                    int taskId =  sc.nextInt();
-                    TodoItem task = tasks.get(taskId);
+                    long taskId =  sc.nextInt();
+                    JSONObject task = findTaskById(taskId);
                     displayTask(task);
                     break;
                 case 4:
                     System.out.print("Enter Task ID: ");
-                    int updateId =  sc.nextInt();
+                    long updateId =  sc.nextLong();
                     sc.nextLine();
                     updateTodo(updateId);
                     break;
                 case 5:
                     System.out.print("Enter Task ID: ");
-                    int delId =  sc.nextInt();
+                    long delId =  sc.nextLong();
                     deleteTodo(delId);
                     break;
                 case 6:
                     System.out.print("Enter Task ID: ");
-                    int statusId =  sc.nextInt();
+                    long statusId =  sc.nextLong();
                     sc.nextLine();
                     updateStatus(statusId);
                     break;
@@ -78,10 +99,23 @@ public class TodoApp {
         }
     }
 
+    public JSONObject findTaskById(long id){
+        for(Object obj : tasks){
+            JSONObject task = (JSONObject) obj;
+
+            if((long) task.get("id") == id){
+                return task;
+            }
+        }
+        return null;
+    }
     public void getTodoByTitle(String title) {
         boolean found = false;
-        for(TodoItem task : tasks.values()){
-            if(task.getTitle().equalsIgnoreCase(title)){
+        for(Object obj : tasks){
+            JSONObject task = (JSONObject) obj;
+            String taskTitle = task.get("title").toString();
+
+            if(taskTitle.equalsIgnoreCase(title)){
                 found = true;
                 displayTask(task);
             }
@@ -93,8 +127,9 @@ public class TodoApp {
 
     public void getTodoByStatus(Status status) {
         boolean found = false;
-        for(TodoItem task : tasks.values()){
-            if(task.getStatus().equals(status)){
+        for(Object obj : tasks){
+            JSONObject task = (JSONObject) obj;
+            if(task.get("status").equals(status.name())){
                 found = true;
                 displayTask(task);
             }
@@ -104,15 +139,15 @@ public class TodoApp {
         }
     }
 
-    public void displayTask(TodoItem task) {
+    public void displayTask(JSONObject task) {
         if(task == null){
             System.out.println("Task not found");
             return;
         }
-        System.out.println("ID: " + task.getId() +
-                " Title: " + task.getTitle() +
-                " Description: " + task.getDescription() +
-                " Status: " + task.getStatus());
+        System.out.println("ID: " + task.get("id") +
+                " Title: " + task.get("title") +
+                " Description: " + task.get("description") +
+                " Status: " + task.get("status"));
     }
 
     public void createTodo(){
@@ -122,8 +157,15 @@ public class TodoApp {
         System.out.print("Description:");
         String description = sc.nextLine();
 
-        TodoItem task = new TodoItem(id++,title,description,Status.PENDING);
-        tasks.put(task.getId(),task);
+        JSONObject task = new JSONObject();
+
+        task.put("id" , id++);
+        task.put("title", title);
+        task.put("description", description);
+        task.put("status", Status.PENDING.name());
+
+        tasks.add(task);
+        TodoUtil.writeTodoArray(tasks);
         System.out.println("Todo Created");
     }
 
@@ -132,25 +174,33 @@ public class TodoApp {
             System.out.println("No Tasks found");
             return;
         }
-        for(TodoItem task : tasks.values()){
+        for(Object obj : tasks){
+            JSONObject task = (JSONObject) obj;
             displayTask(task);
         }
     }
 
-    public void updateTodo(int taskId){
-        TodoItem task = tasks.get(taskId);
+    public void updateTodo(long taskId){
+
+        JSONObject task = findTaskById(taskId);
         if(task == null){
-            System.out.println("Task not found");
+            System.out.println("No Task Found");
             return;
         }
 
-        System.out.print("New Title: ");
-        task.setTitle(sc.nextLine());
+        System.out.print("Title:");
+        String title = sc.nextLine();
 
-        System.out.print("New Description: ");
-        task.setDescription(sc.nextLine());
+        System.out.print("Description:");
+        String description = sc.nextLine();
 
-        task.setStatus(readStatus());
+        Status status = readStatus();
+
+        task.put("title" , title);
+        task.put("description" , description);
+        task.put("status" , status.name());
+        TodoUtil.writeTodoArray(tasks);
+
     }
 
     public Status readStatus() {
@@ -166,22 +216,34 @@ public class TodoApp {
         }
     }
 
-    public void deleteTodo(int delId) {
-        TodoItem task = tasks.get(delId);
-        if(task == null){
-            System.out.println("Task not found");
-            return;
+    public void deleteTodo(long delId) {
+        Iterator<Object> iterator = tasks.iterator();
+        while (iterator.hasNext()){
+            JSONObject task = (JSONObject) iterator.next();
+            long taskId = (long) task.get("id");
+
+            if(taskId == delId){
+                iterator.remove();
+                TodoUtil.writeTodoArray(tasks);
+                System.out.println("Task deleted");
+                return;
+            }
         }
-        tasks.remove(delId);
-        System.out.println("Task deleted successfully");
+        System.out.println("Task Not Found");
     }
 
-    public void updateStatus(int statusId) {
-        TodoItem task = tasks.get(statusId);
+    public void updateStatus(long statusId) {
+
+        JSONObject task = findTaskById(statusId);
         if(task == null){
-            System.out.println("Task not found");
+            System.out.println("No Task Found");
             return;
         }
-        task.setStatus(readStatus());
+
+        Status status = readStatus();
+
+        task.put("status" , status.name());
+        TodoUtil.writeTodoArray(tasks);
+        System.out.println("Status updated");
     }
 }

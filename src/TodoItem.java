@@ -1,9 +1,3 @@
-enum Status{
-    PENDING ,
-    IN_PROGRESS ,
-    COMPLETED
-}
-
 public class TodoItem {
 
     private int id;
