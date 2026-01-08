@@ -4,6 +4,7 @@ import com.google.gson.reflect.TypeToken;
 
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,8 +19,11 @@ public class TodoGsonUtil {
             Type listType = new TypeToken<HashMap<Integer , TodoItem>>(){}.getType();
             Map<Integer , TodoItem> tasks = gson.fromJson(reader , listType);
             return (tasks != null) ? tasks : new HashMap<>();
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
+            return new HashMap<>();
+        } catch (RuntimeException e) {
+            throw new RuntimeException(e);
             return new HashMap<>();
         }
     }
@@ -27,7 +31,7 @@ public class TodoGsonUtil {
     public static void writeTodos(Map<Integer , TodoItem> tasks){
         try(FileWriter writer = new FileWriter(filename)){
             gson.toJson(tasks , writer);
-        }catch (Exception e){
+        }catch (IOException e){
             e.printStackTrace();
         }
     }
